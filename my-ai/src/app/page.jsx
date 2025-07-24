@@ -84,11 +84,6 @@ export default function MyAI() {
   // }
   async function clearMessagesCollection() {
   try {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      alert("User not signed in");
-      return;
-    }
 
     const messagesRef = collection(db, "messages");
     const userMessagesQuery = query(
@@ -102,7 +97,7 @@ export default function MyAI() {
     );
 
     await Promise.all(deletePromises);
-    alert("All user messages deleted.");
+    alert("All messages deleted.");
   } catch (error) {
     alert("Error clearing messages collection:", error);
   }
