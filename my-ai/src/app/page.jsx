@@ -84,7 +84,6 @@ export default function MyAI() {
   // }
   async function clearMessagesCollection() {
   try {
-
     const messagesRef = collection(db, "messages");
     const userMessagesQuery = query(
       messagesRef,
@@ -99,7 +98,8 @@ export default function MyAI() {
     await Promise.all(deletePromises);
     alert("All messages deleted.");
   } catch (error) {
-    alert("Error clearing messages collection:", error);
+    console.error("Error clearing messages collection:", error);
+    alert("Failed to delete messages. Check console for details.");
   }
 }
 
