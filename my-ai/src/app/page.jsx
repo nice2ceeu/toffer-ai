@@ -67,21 +67,47 @@ export default function MyAI() {
     setUser_prompt(e.target.value);
   };
 
+  // async function clearMessagesCollection() {
+  //   try {
+  //     const messagesRef = collection(db, "messages");
+  //     const snapshot = await getDocs(messagesRef);
+
+  //     const deletePromises = snapshot.docs.map((docSnap) =>
+  //       deleteDoc(doc(db, "messages", docSnap.id)),
+  //     );
+
+  //     await Promise.all(deletePromises);
+  //     console.log("All messages deleted.");
+  //   } catch (error) {
+  //     console.error("Error clearing messages collection:", error);
+  //   }
+  // }
   async function clearMessagesCollection() {
-    try {
-      const messagesRef = collection(db, "messages");
-      const snapshot = await getDocs(messagesRef);
-
-      const deletePromises = snapshot.docs.map((docSnap) =>
-        deleteDoc(doc(db, "messages", docSnap.id)),
-      );
-
-      await Promise.all(deletePromises);
-      console.log("All messages deleted.");
-    } catch (error) {
-      console.error("Error clearing messages collection:", error);
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      alert("User not signed in");
+      return;
     }
+
+    const messagesRef = collection(db, "messages");
+    const userMessagesQuery = query(
+      messagesRef,
+      where("userId", "==", currentUser.uid)
+    );
+    const snapshot = await getDocs(userMessagesQuery);
+
+    const deletePromises = snapshot.docs.map((docSnap) =>
+      deleteDoc(doc(db, "messages", docSnap.id))
+    );
+
+    await Promise.all(deletePromises);
+    alert("All user messages deleted.");
+  } catch (error) {
+    alert("Error clearing messages collection:", error);
   }
+}
+
 
   const handleSubmit = async () => {
     if (!user_prompt.trim()) return;
