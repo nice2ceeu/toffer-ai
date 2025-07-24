@@ -84,6 +84,13 @@ export default function MyAI() {
   // }
   async function clearMessagesCollection() {
   try {
+
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      alert("No user is currently signed in.");
+      return;
+    }
+
     const messagesRef = collection(db, "messages");
     const userMessagesQuery = query(
       messagesRef,
