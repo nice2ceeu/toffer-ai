@@ -111,51 +111,106 @@ export default function MyAI() {
 }
 
 
+  // const handleSubmit = async () => {
+  //   if (!user_prompt.trim()) return;
+  //   setUser_prompt("");
+
+  //   const currentUser = auth.currentUser;
+  //   if (!currentUser) {
+  //     console.error("User not signed in");
+  //     return;
+  //   }
+
+  //   try {
+  //     const userMessagesQuery = query(
+  //       collection(db, "messages"),
+  //       where("userId", "==", currentUser.uid),
+  //       orderBy("createdAt", "desc"),
+  //       limit(10),
+  //     );
+
+  //     const snapshot = await getDocs(userMessagesQuery);
+
+  //     const pastMessages = snapshot.docs.reverse().map((doc) => ({
+  //       prompt: doc.data().prompt,
+  //       response: doc.data().response,
+  //     }));
+
+  //     const contextText = pastMessages
+  //       .map((msg) => `User: ${msg.prompt}\nAI: ${msg.response}`)
+  //       .join("\n\n");
+
+  //     const fullPrompt = `${contextText}\n\nUser: ${user_prompt}\nAI:`;
+
+  //     const result = await model.generateContent(fullPrompt);
+  //     const response = result.response;
+  //     const text = await response.text();
+
+  //     await addDoc(collection(db, "messages"), {
+  //       userId: currentUser.uid,
+  //       prompt: user_prompt,
+  //       response: text,
+  //       createdAt: serverTimestamp(),
+  //     });
+  //   } catch (error) {
+  //     console.error("Error submitting prompt:", error);
+  //   }
+  // };
   const handleSubmit = async () => {
-    if (!user_prompt.trim()) return;
-    setUser_prompt("");
+  if (!user_prompt.trim()) return;
+  setUser_prompt("");
 
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-      console.error("User not signed in");
-      return;
-    }
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    console.error("User not signed in");
+    return;
+  }
 
-    try {
-      const userMessagesQuery = query(
-        collection(db, "messages"),
-        where("userId", "==", currentUser.uid),
-        orderBy("createdAt", "desc"),
-        limit(10),
-      );
+  try {
+    
+    const userMessagesQuery = query(
+      collection(db, "messages"),
+      where("userId", "==", currentUser.uid),
+      orderBy("createdAt", "desc"),
+      limit(10)
+    );
 
-      const snapshot = await getDocs(userMessagesQuery);
+    const snapshot = await getDocs(userMessagesQuery);
 
-      const pastMessages = snapshot.docs.reverse().map((doc) => ({
-        prompt: doc.data().prompt,
-        response: doc.data().response,
-      }));
+    const pastMessages = snapshot.docs.reverse().map((doc) => ({
+      prompt: doc.data().prompt,
+      response: doc.data().response,
+    }));
 
-      const contextText = pastMessages
-        .map((msg) => `User: ${msg.prompt}\nAI: ${msg.response}`)
-        .join("\n\n");
+    const contextText = pastMessages
+      .map((msg) => `User: ${msg.prompt}\nAI: ${msg.response}`)
+      .join("\n\n");
 
-      const fullPrompt = `${contextText}\n\nUser: ${user_prompt}\nAI:`;
+    const fullPrompt = `${contextText}\n\nUser: ${user_prompt}\nAI:`;
 
-      const result = await model.generateContent(fullPrompt);
-      const response = result.response;
-      const text = await response.text();
+   
+    const result = await model.generateContent(fullPrompt);
+    const response = result.response;
+    const text = await response.text();
 
-      await addDoc(collection(db, "messages"), {
-        userId: currentUser.uid,
-        prompt: user_prompt,
-        response: text,
-        createdAt: serverTimestamp(),
-      });
-    } catch (error) {
-      console.error("Error submitting prompt:", error);
-    }
-  };
+  
+    await addDoc(collection(db, "messages"), {
+      userId: currentUser.uid,
+      type: "user",
+      text: user_prompt,
+      createdAt: serverTimestamp(),
+    });
+    await addDoc(collection(db, "messages"), {
+      userId: currentUser.uid,
+      type: "ai",
+      text: text,
+      createdAt: serverTimestamp(),
+    });
+
+  } catch (error) {
+    console.error("Error submitting prompt:", error);
+  }
+};
 
   const handleKeydown = (e) => {
     if (e.key === "Enter") {
@@ -222,12 +277,19 @@ export default function MyAI() {
             <div className="flex h-full max-h-[90vh] w-full flex-col p-3.5 lg:max-h-dvh lg:w-1/2">
               {/* Chat message */}
               <div className="overflow-y-auto [&>div]:mb-5 [&>div]:space-y-5">
-                {messages.map((msg) => (
+{/*                 {messages.map((msg) => (
                   <div key={msg.id}>
                     <Userchat user_id={msg.id} user_text={msg.prompt} />
 
                     <Aichat ai_id={msg.id} ai_text={msg.response} />
                   </div>
+                ))} */}
+                {messages.map((msg) => (
+                  msg.type === "user" ? (
+                    <Userchat key={msg.id} user_id={msg.id} user_text={msg.text} />
+                  ) : (
+                    <Aichat key={msg.id} ai_id={msg.id} ai_text={msg.text} />
+                  )
                 ))}
               </div>
 
