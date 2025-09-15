@@ -49,7 +49,7 @@ export default function MyAI() {
     const userMessagesQuery = query(
       messagesRef,
       where("userId", "==", user.uid),
-      orderBy("createdAt"),
+      orderBy("createdAt")
     );
 
     const unsubscribe = onSnapshot(userMessagesQuery, (snapshot) => {
